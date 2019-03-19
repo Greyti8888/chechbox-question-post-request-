@@ -1,0 +1,93 @@
+<!-- 
+    1) Write function, which checks correctness of the login. The correct login is string of 2 to 10 characters, containing only letters and numbers, number cannot be first.
+
+    let loginCheck = (login) => /^[a-z][a-z0-9]{1,9}$/i.test(login);
+
+    2) Write function, which takes string and finds all numbers in this string, including float numbers (For example, 3.4).
+
+    let onlyNumbers = (str) => str.match(/-?\d+(\.\d+)?/g)
+
+    3) Write please the front-end part of the application fot the test.
+
+    //IMAGE OF QUESTION WITH CHECKBOXES AND SUBMIT BUTTON //
+
+    Functional requirements:
+
+    when clicking on the button, the application sends request with data to the server using AJAX technology:
+        endpoint URI: /api/grade
+        HTTP method: POST
+        data is sent in JSON format, the structure:
+
+        {
+           "answer": [ "valueFromSomeCheckBox", ... ]
+        }
+
+    the server returns data in JSON format, the structure:
+        if the client has sent data that match to the correct answer:
+
+        { "result": true }
+
+        if the client has sent data that does not match to the correct answer:
+
+        { "result": false }
+
+    after receiving data from the server, the application displays a "Passed" message in green (as shown in the picture to the right of the button) or "Failed" in red, then clears the labels from the selected answer items.
+
+ -->
+ 
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+
+<body>
+    <label for="q1">What attributes are used when creating forms:</label>
+    <form id="q1">
+           <label><input type="checkbox" class="q1cb" value="autocomplete">autocomplete</label><br>
+           <label><input type="checkbox" class="q1cb" value="action">action</label><br>
+           <label><input type="checkbox" class="q1cb" value="charset">charset</label><br>
+           <label><input type="checkbox" class="q1cb" value="validate">validate</label><br>
+           <button id="q1-submit">Result</button>
+    </form>
+    <script>
+        document.querySelector('#q1').addEventListener('submit', answerCheck)
+
+        function answerCheck(e) {
+            e.preventDefault();
+            let arr = [];
+            let checkBoxes = document.querySelectorAll('.q1cb')
+            for (let i in checkBoxes) {
+                if (checkBoxes[i].checked) {
+                    arr.push(checkBoxes[i].value)
+                }
+            }
+            let output = JSON.stringify({ "answer": arr });
+
+            let xhr = new XMLHttpRequest();
+            xhr.open('POST', '/api/grade', true)
+            xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded')
+            xhr.onload = function () {
+                if (this.status == 200) {
+                    let response = JSON.parse(this.responseText)
+                    if (response.result == 'true') {
+                       let test = `<span style="color: green">Passed</span>`
+                       document.querySelector('#q1').innerHTML += test
+                       document.querySelectorAll('.q1cb').forEach((i) => i.checked = false)
+                    } else {
+                       let test = `<span style="color: red">Failed</span>`
+                       document.querySelector('#q1').innerHTML += test
+                       document.querySelectorAll('.q1cb').forEach((i) => i.checked = false)
+                    }
+                }
+            }
+            xhr.send(output)
+        }
+    </script>
+</body>
+
+</html>
